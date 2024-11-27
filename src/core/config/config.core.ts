@@ -6,10 +6,6 @@ export class ENVConfig {
     return this.getConfig(ENVConfigs.enableSwagger) === 'true';
   }
 
-  static get createOpenApiSpec(): boolean {
-    return this.getConfig(ENVConfigs.createOpenApiSpec) === 'true';
-  }
-
   static get port(): number {
     this.ensureConfigExistenceOrThrow(ENVConfigs.port);
     return +this.getConfig(ENVConfigs.port);

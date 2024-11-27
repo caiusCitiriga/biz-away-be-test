@@ -8,7 +8,6 @@ export enum ENVConfigs {
 
   port = 'BZA_GATEWAY_PORT',
   enableSwagger = 'BZA_ENABLE_SWAGGER',
-  createOpenApiSpec = 'BZA_CREATE_OPEN_API_SPEC',
   allowedRestOrigins = 'BZA_GATEWAY_ALLOWED_REST_ORIGINS',
   acceptUnknownOrigins = 'BZA_GATEWAY_ACCEPT_UNKNOWN_ORIGINS',
 }
