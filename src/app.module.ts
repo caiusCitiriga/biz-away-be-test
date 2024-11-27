@@ -6,6 +6,7 @@ import { BaseResponseInterceptor, ENVConfig } from '@core';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { TripPlannerModule } from './modules/trip-planner/trip-planner.module';
 
 @Module({
   imports: [
@@ -14,6 +15,8 @@ import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
     }),
 
     AuthModule,
+
+    TripPlannerModule,
   ],
   providers: [
     {

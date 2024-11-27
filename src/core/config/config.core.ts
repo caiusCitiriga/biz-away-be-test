@@ -23,6 +23,11 @@ export class ENVConfig {
     return this.getConfig(ENVConfigs.acceptUnknownOrigins) === 'true';
   }
 
+  static get remoteApiKey(): string {
+    this.ensureConfigExistenceOrThrow(ENVConfigs.remoteApiKey);
+    return this.getConfig(ENVConfigs.remoteApiKey);
+  }
+
   static get JWTSecret(): string {
     this.ensureConfigExistenceOrThrow(ENVConfigs.JWTSecret);
     return this.getConfig(ENVConfigs.JWTSecret);

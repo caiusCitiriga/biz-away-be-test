@@ -20,7 +20,8 @@
     "paths": {
       "@core": ["src/core/index"],
       "@repos": ["src/shared/repos/index"],
-      "@utils": ["src/shared/utils/index"]
+      "@utils": ["src/shared/utils/index"],
+      "@models": ["src/shared/models/index"]
     }
   }
 }

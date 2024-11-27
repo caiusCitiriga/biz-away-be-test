@@ -5,6 +5,7 @@ export enum ENVConfigs {
 
   testUsername = 'BZA_TEST_USERNAME',
   testPassword = 'BZA_TEST_PASSWORD',
+  remoteApiKey = 'BZA_REMOTE_API_KEY',
 
   port = 'BZA_GATEWAY_PORT',
   enableSwagger = 'BZA_ENABLE_SWAGGER',
