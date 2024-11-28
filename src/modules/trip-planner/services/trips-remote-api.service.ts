@@ -4,7 +4,7 @@ import { catchError, map, of, take } from 'rxjs';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { ENVConfig } from '@core';
-import { Trip, TripsPlaces } from '@models';
+import { ITrip, TripsPlaces } from '@models';
 
 @Injectable()
 export class TripsRemoteApiService {
@@ -14,13 +14,13 @@ export class TripsRemoteApiService {
 
   constructor(private readonly http: HttpService) {}
 
-  getTrips(origin: TripsPlaces, destination: TripsPlaces): Promise<Trip[]> {
+  getTrips(origin: TripsPlaces, destination: TripsPlaces): Promise<ITrip[]> {
     const url = this.buildUrl(origin, destination);
     const headers = this.buildHeaders();
 
-    return new Promise<Trip[]>((resolve, reject) => {
+    return new Promise<ITrip[]>((resolve, reject) => {
       this.http
-        .get<Trip[]>(url, { headers })
+        .get<ITrip[]>(url, { headers })
         .pipe(
           take(1),
           map((resp) => resolve(resp.data)),

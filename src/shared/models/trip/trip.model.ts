@@ -1,7 +1,7 @@
 import { TripsTypes } from './trips-types.enum';
 import { TripsPlaces } from './trips-places.enum';
 
-export interface Trip {
+export interface ITrip {
   id: string;
   cost: number;
   duration: number;
