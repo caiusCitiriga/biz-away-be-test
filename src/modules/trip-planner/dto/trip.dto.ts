@@ -1,10 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ITrip, TripsPlaces, TripsTypes } from '@models';
-import { IsEnum, IsNumber, IsString, Min } from 'class-validator';
+import { IsEnum, IsNumber, IsString, IsUUID, Min } from 'class-validator';
 
 export class TripDto implements ITrip {
   @ApiProperty()
-  @IsString()
+  @IsUUID('4')
   id: string;
 
   @ApiProperty()

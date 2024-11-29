@@ -10,14 +10,22 @@ export type UserTripProjection<T = Partial<UserTripDocument>> = {
 
 @Injectable()
 export class UserTripsRepoService {
-  private readonly defaultProjection: UserTripProjection = { _id: 0 };
+  private readonly defaultProjection: UserTripProjection = { userId: 0 };
 
   constructor(
     @InjectModel(UserTrip.name) private model: Model<UserTripDocument>,
   ) {}
 
-  async create(trip: UserTrip): Promise<UserTrip> {
-    const result = await this.model.create(trip);
+  async create(userTrip: Omit<UserTrip, 'id'>): Promise<UserTrip> {
+    const result = await this.model.findOneAndUpdate(
+      { userId: userTrip.userId, 'trip.id': userTrip.trip.id },
+      userTrip,
+      {
+        new: true,
+        upsert: true,
+        projection: this.defaultProjection,
+      },
+    );
     return result.toJSON();
   }
 
@@ -25,7 +33,10 @@ export class UserTripsRepoService {
     id: string,
     userId: string,
   ): Promise<UserTrip | null> {
-    const result = await this.model.findOneAndDelete({ id, userId });
+    const result = await this.model.findOneAndDelete({
+      userId,
+      _id: id,
+    });
     if (!!result) return result.toJSON();
 
     return null;

@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { Document, SchemaTypes } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 import { ITrip, TripsPlaces, TripsTypes } from '@models';
@@ -29,7 +29,7 @@ export class EmbeddedTrip implements ITrip {
 
 @Schema()
 export class UserTrip {
-  @Prop({ type: String, index: true })
+  @Prop({ type: SchemaTypes.ObjectId })
   id: string;
 
   @Prop({ type: String, index: true })
@@ -41,5 +41,13 @@ export class UserTrip {
 
 export type UserTripDocument = UserTrip & Document;
 const UserTripSchema = SchemaFactory.createForClass(UserTrip);
+
+UserTripSchema.set('toJSON', {
+  transform: function (_, ret: UserTripDocument) {
+    ret.id = ret._id.toString();
+    delete ret._id;
+    delete ret.__v;
+  },
+});
 
 export { UserTripSchema };

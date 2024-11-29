@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import {
   Logger,
   Injectable,
@@ -9,8 +8,10 @@ import {
 } from '@nestjs/common';
 
 import { ITrip, TripsPlaces } from '@models';
-import { UserTrip, UserTripsRepoService } from '@repos';
+import { UserTripsRepoService } from '@repos';
 
+import { TripDto } from '../dto/trip.dto';
+import { UserTripDto } from '../dto/user-trip.dto';
 import { SortModes } from '../enum/sort-modes.enum';
 import { TripsRemoteApiService } from './trips-remote-api.service';
 
@@ -27,7 +28,7 @@ export class TripPlannerService {
     origin: TripsPlaces,
     destination: TripsPlaces,
     sortMode: SortModes,
-  ): Promise<ITrip[]> {
+  ): Promise<TripDto[]> {
     try {
       const tripsList = await this.remoteApi.getTrips(origin, destination);
       const sortedTrips = this.sortTrips(tripsList, sortMode);
@@ -40,7 +41,7 @@ export class TripPlannerService {
     }
   }
 
-  async getUserTrips(userId: string): Promise<UserTrip[]> {
+  async getUserTrips(userId: string): Promise<UserTripDto[]> {
     try {
       return this.userTripsRepo.getByUserId(userId);
     } catch (e) {
@@ -49,23 +50,19 @@ export class TripPlannerService {
     }
   }
 
-  async saveUserTrip(userId: string, trip: ITrip): Promise<UserTrip> {
-    const userTrip: UserTrip = {
-      trip,
-      userId,
-      id: randomUUID(),
-    };
-
+  async saveUserTrip(userId: string, trip: ITrip): Promise<UserTripDto> {
     try {
-      const result = await this.userTripsRepo.create(userTrip);
-      return result;
+      return this.userTripsRepo.create({ trip, userId });
     } catch (e) {
       this.logger.debug(`Error saving user trip: ${e.message || e.name}`);
       throw new InternalServerErrorException('Error saving your trip');
     }
   }
 
-  async deleteUserTrip(savedTripId: string, userId: string): Promise<UserTrip> {
+  async deleteUserTrip(
+    savedTripId: string,
+    userId: string,
+  ): Promise<UserTripDto> {
     try {
       const result = await this.userTripsRepo.deleteUserOwnedTrip(
         savedTripId,
@@ -81,7 +78,7 @@ export class TripPlannerService {
     }
   }
 
-  private sortTrips(trips: ITrip[], mode: SortModes): ITrip[] {
+  sortTrips(trips: ITrip[], mode: SortModes): ITrip[] {
     switch (mode) {
       case SortModes.cheapest:
         return trips.sort((a, b) => a.cost - b.cost);
