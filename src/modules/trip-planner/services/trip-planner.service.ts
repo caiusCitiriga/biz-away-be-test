@@ -34,10 +34,10 @@ export class TripPlannerService {
       const sortedTrips = this.sortTrips(tripsList, sortMode);
       return sortedTrips;
     } catch (e) {
-      if (e.message === 'unknown remote api error')
-        throw new BadGatewayException(e.message);
+      if (e instanceof BadGatewayException) throw e;
 
-      throw new BadRequestException(e.message || e.name);
+      this.logger.debug(`An unknown error occurred: ${e.message || e.name}`);
+      throw new InternalServerErrorException();
     }
   }
 
@@ -73,6 +73,7 @@ export class TripPlannerService {
 
       return result;
     } catch (e) {
+      if (e instanceof NotFoundException) throw e;
       this.logger.debug(`Error deleting user trip: ${e.message || e.name}`);
       throw new InternalServerErrorException('Error deleting your trip');
     }

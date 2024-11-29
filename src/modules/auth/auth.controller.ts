@@ -1,5 +1,5 @@
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Public, ReqUser } from '@core';
 
@@ -13,12 +13,18 @@ export class AuthController {
 
   @Public()
   @Post('sign-in')
+  @ApiOperation({
+    summary: 'Sign in given credentials in exchange for JWT token',
+  })
   signIn(@Body() dto: SignInDto) {
     return this.auth.signIn(dto.username, dto.password);
   }
 
   @Get('me')
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Returns user id',
+  })
   getUserInfo(@ReqUser() user: { sub: string }) {
     return user.sub;
   }

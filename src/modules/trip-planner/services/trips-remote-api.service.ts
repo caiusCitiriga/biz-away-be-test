@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import { HttpService } from '@nestjs/axios';
 import { catchError, map, of, take } from 'rxjs';
-import { Injectable, Logger } from '@nestjs/common';
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 
 import { ENVConfig } from '@core';
 import { ITrip, TripsPlaces } from '@models';
@@ -27,14 +27,13 @@ export class TripsRemoteApiService {
           catchError((e) => {
             if (e instanceof AxiosError) {
               this.logger.debug(`remote api error: ${e.code} - ${e.message}`);
-              reject(new Error(e.message));
             } else {
               this.logger.debug(
                 `unknown remote api error: ${e.message || e.name}`,
               );
-              reject(new Error(`unknown remote api error`));
             }
 
+            reject(new BadGatewayException(e.message));
             return of(e);
           }),
         )
