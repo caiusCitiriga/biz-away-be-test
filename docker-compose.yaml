@@ -1,0 +1,40 @@
+services:
+  mongo:
+    container_name: mongo
+    image: bitnami/mongodb:latest
+    networks:
+      - intercom
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGODB_ROOT_USER=root
+      - MONGODB_ROOT_PASSWORD=root
+      - EXPERIMENTAL_DOCKER_DESKTOP_FORCE_QEMU=1
+
+  bza-be-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - intercom
+    ports:
+      - '${BZA_GATEWAY_PORT}:${BZA_GATEWAY_PORT}'
+    environment:
+      - BZA_DB_URL=${BZA_DB_URL}
+      - BZA_DB_NAME=${BZA_DB_NAME}
+      - BZA_JWT_SECRET=${BZA_JWT_SECRET}
+      - BZA_GATEWAY_PORT=${BZA_GATEWAY_PORT}
+      - BZA_TEST_USERNAME=${BZA_TEST_USERNAME}
+      - BZA_TEST_PASSWORD=${BZA_TEST_PASSWORD}
+      - BZA_REMOTE_API_KEY=${BZA_REMOTE_API_KEY}
+      - BZA_ENABLE_SWAGGER=${BZA_ENABLE_SWAGGER}
+      - BZA_GATEWAY_ALLOWED_REST_ORIGINS=${BZA_GATEWAY_ALLOWED_REST_ORIGINS}
+      - BZA_GATEWAY_ACCEPT_UNKNOWN_ORIGINS=${BZA_GATEWAY_ACCEPT_UNKNOWN_ORIGINS}
+    depends_on:
+      - mongo
+    links:
+      - mongo
+
+networks:
+  intercom:
+    driver: bridge

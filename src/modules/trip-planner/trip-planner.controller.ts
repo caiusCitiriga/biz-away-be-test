@@ -24,12 +24,16 @@ import { UserTripDto } from './dto/user-trip.dto';
 import { SortModes } from './enum/sort-modes.enum';
 import { IsObjectIdPipe } from 'src/shared/pipes/is-object-id.pipe';
 import { TripPlannerService } from './services/trip-planner.service';
+import { TripManagerService } from './services/trip-manager.service';
 
 @ApiBearerAuth()
 @ApiTags('Trip planner')
 @Controller('trip-planner')
 export class TripPlannerController {
-  constructor(private readonly tripPlanner: TripPlannerService) {}
+  constructor(
+    private readonly tripPlanner: TripPlannerService,
+    private readonly tripManager: TripManagerService,
+  ) {}
 
   @Get('trips')
   @ApiListBaseResponseDto(TripDto)
@@ -54,14 +58,14 @@ export class TripPlannerController {
       'If the trip does not exist, a new entry will be created. If the same trip id (remote) exists, the trip will be updated.',
   })
   saveUserTrip(@Body() dto: TripDto, @ReqUser() reqUser: { sub: string }) {
-    return this.tripPlanner.saveUserTrip(reqUser.sub, dto);
+    return this.tripManager.saveUserTrip(reqUser.sub, dto);
   }
 
   @Get('trips/my-trips')
   @ApiListBaseResponseDto(UserTripDto)
   @ApiOperation({ summary: 'Get all user trips' })
   getUserTrips(@ReqUser() reqUser: { sub: string }) {
-    return this.tripPlanner.getUserTrips(reqUser.sub);
+    return this.tripManager.getUserTrips(reqUser.sub);
   }
 
   @Delete('trips/my-trips/:id')
@@ -80,6 +84,6 @@ export class TripPlannerController {
     @Param('id', IsObjectIdPipe) id: string,
     @ReqUser() reqUser: { sub: string },
   ) {
-    return this.tripPlanner.deleteUserTrip(id, reqUser.sub);
+    return this.tripManager.deleteUserTrip(id, reqUser.sub);
   }
 }

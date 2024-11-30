@@ -6,6 +6,10 @@ import { ENVConfig } from '@core';
 
 import { AppModule } from './app.module';
 
+setTimeout(() => {
+  console.log(ENVConfig.dbUrl);
+}, 1000);
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 

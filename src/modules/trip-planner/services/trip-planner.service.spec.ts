@@ -1,27 +1,20 @@
-import { Types } from 'mongoose';
 import {
-  NotFoundException,
   BadGatewayException,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TripPlannerService } from './trip-planner.service';
 
-import { UserTrip, UserTripsRepoService } from '@repos';
 import { ITrip, TripsPlaces, TripsTypes } from '@models';
 
-import { UserTripDto } from '../dto/user-trip.dto';
 import { SortModes } from '../enum/sort-modes.enum';
 import { TripsRemoteApiService } from './trips-remote-api.service';
-import { UserTripsServiceMock } from 'test/mocks/user-trips.service.mock';
 import { TripsRemoteApiServiceMock } from 'test/mocks/trips-remote-api.service.mock';
 
 describe('TripPlannerService features', () => {
   let trips: ITrip[];
-  let userSavedTrips: UserTrip[];
   let service: TripPlannerService;
   let remoteApiService: TripsRemoteApiService;
-  let userTripsRepoService: UserTripsRepoService;
 
   beforeEach(async () => {
     trips = [
@@ -81,21 +74,11 @@ describe('TripPlannerService features', () => {
             getTrips: () => null,
           },
         },
-        {
-          provide: UserTripsRepoService,
-          useValue: <UserTripsServiceMock>{
-            create: () => null,
-            getByUserId: () => null,
-            deleteUserOwnedTrip: () => null,
-          },
-        },
       ],
     }).compile();
 
     service = module.get<TripPlannerService>(TripPlannerService);
     remoteApiService = module.get<TripsRemoteApiService>(TripsRemoteApiService);
-    userTripsRepoService =
-      module.get<UserTripsRepoService>(UserTripsRepoService);
   });
 
   it('should be defined', () => {
@@ -180,88 +163,5 @@ describe('TripPlannerService features', () => {
         SortModes.cheapest,
       ),
     ).rejects.toBeInstanceOf(InternalServerErrorException);
-  });
-
-  it('should save a user trip', async () => {
-    const userId = new Types.ObjectId().toString();
-    const savedTripId = new Types.ObjectId().toString();
-    const userTrip: UserTripDto = {
-      userId,
-      trip: trips[0],
-      id: savedTripId,
-    };
-
-    jest.spyOn(userTripsRepoService, 'create').mockResolvedValue(userTrip);
-
-    const result = await service.saveUserTrip(userId, userTrip.trip);
-
-    expect(result).toBeDefined();
-    expect(result.userId).toEqual(userId);
-    expect(result.id).toEqual(savedTripId);
-    expect(result.trip).toEqual(userTrip.trip);
-  });
-
-  it('should get user saved trips', async () => {
-    const userId = new Types.ObjectId().toString();
-    const savedTripId = new Types.ObjectId().toString();
-    const userTrip: UserTripDto = {
-      userId,
-      trip: trips[0],
-      id: savedTripId,
-    };
-
-    userSavedTrips = [userTrip];
-
-    jest
-      .spyOn(userTripsRepoService, 'getByUserId')
-      .mockImplementation((userId: string) =>
-        Promise.resolve(userSavedTrips.filter((t) => t.userId === userId)),
-      );
-
-    const result = await service.getUserTrips(userId);
-
-    expect(result).toBeDefined();
-    expect(result.length).toBe(1);
-    expect(result[0].id).toEqual(savedTripId);
-    expect(result[0].trip).toEqual(userTrip.trip);
-    expect(result[0].userId).toEqual(userTrip.userId);
-  });
-
-  it('should delete a user saved trip', async () => {
-    const userId = new Types.ObjectId().toString();
-    const savedTripId = new Types.ObjectId().toString();
-    const userTrip: UserTripDto = {
-      userId,
-      trip: trips[0],
-      id: savedTripId,
-    };
-
-    userSavedTrips = [userTrip];
-
-    jest
-      .spyOn(userTripsRepoService, 'deleteUserOwnedTrip')
-      .mockImplementation((savedTripId: string, userId: string) => {
-        const deletedTrip = userSavedTrips.find(
-          (t) => savedTripId === t.id && t.userId === userId,
-        );
-        if (!deletedTrip) return Promise.resolve(null);
-        return Promise.resolve(deletedTrip);
-      });
-
-    const result = await service.deleteUserTrip(savedTripId, userId);
-    expect(result).toBeDefined();
-    expect(result.id).toEqual(savedTripId);
-    expect(result.trip).toEqual(userTrip.trip);
-    expect(result.userId).toEqual(userTrip.userId);
-  });
-
-  it('should return 404 when deleting non existing trip', async () => {
-    jest
-      .spyOn(userTripsRepoService, 'deleteUserOwnedTrip')
-      .mockResolvedValue(null);
-
-    expect(service.deleteUserTrip('', '')).rejects.toBeInstanceOf(
-      NotFoundException,
-    );
   });
 });
