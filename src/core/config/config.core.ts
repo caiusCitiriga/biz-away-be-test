@@ -6,10 +6,6 @@ export class ENVConfig {
     return this.getConfig(ENVConfigs.enableSwagger) === 'true';
   }
 
-  static get createOpenApiSpec(): boolean {
-    return this.getConfig(ENVConfigs.createOpenApiSpec) === 'true';
-  }
-
   static get port(): number {
     this.ensureConfigExistenceOrThrow(ENVConfigs.port);
     return +this.getConfig(ENVConfigs.port);
@@ -25,6 +21,11 @@ export class ENVConfig {
 
   static get acceptUnknownOrigins(): boolean {
     return this.getConfig(ENVConfigs.acceptUnknownOrigins) === 'true';
+  }
+
+  static get remoteApiKey(): string {
+    this.ensureConfigExistenceOrThrow(ENVConfigs.remoteApiKey);
+    return this.getConfig(ENVConfigs.remoteApiKey);
   }
 
   static get JWTSecret(): string {

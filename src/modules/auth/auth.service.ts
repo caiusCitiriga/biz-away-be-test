@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 
@@ -27,7 +28,7 @@ export class AuthService {
         user.password,
       );
       if (!isValidPassword) throw new UnauthorizedException();
-      return this.jwt.signAsync({ sub: user.username });
+      return this.jwt.signAsync({ sub: user.id });
     } catch (e) {
       const msg = `Password verify error for "${username}": ${e.message || e.name}`;
       this.logger.debug(msg);
@@ -38,6 +39,7 @@ export class AuthService {
   private async checkTestUserPresence() {
     const user = await this.usersRepo.getByUsername(ENVConfig.testUsername);
     if (!user) await this.seedTestUser();
+    else this.logger.debug(`Found existing test user. Skipping seeding`);
   }
 
   private async seedTestUser() {
@@ -46,6 +48,7 @@ export class AuthService {
     await this.usersRepo.create({
       salt,
       password,
+      id: randomUUID(),
       username: ENVConfig.testUsername,
     });
     this.logger.debug(`Seeded test user "${ENVConfig.testUsername}"`);
