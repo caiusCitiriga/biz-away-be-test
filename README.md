@@ -2,6 +2,26 @@
 
 NestJS REST API for fetching trips, and manage a user collection of trips.
 
+## What's inside?
+
+The project meets the requirements & the Bonus assignment, plus a series other small additions. The complete list is:
+
+- an API that allows to search a trip from an origin to a destination and define a sort_by strategy
+- simple trip manager for saving, listing and deleting user trips
+- validation of input dtos properties
+- basic authentication module with JWT
+- Jwt authentication guard. By default all endpoints are protected and can be made public via custom `@Public()` route decorator.
+- custom route decorator for `@ReqUser()` the user issuing the request
+- swagger open api for easy interaction with the API, and possible client side automatic code generation
+- base return response, that standardize the returned response and a base response interceptor for automatic mapping
+- Dockerfile and docker-compose for running everything with docker
+- db connection with mongoose
+- shared repositories modules for interaction ease
+- simple environment config manager
+- simple CORS management
+- helmet for security against known http vulnerabilities
+- throttler module for rate limiting (10 requests max per minute)
+
 ## Local project setup
 
 ```bash
@@ -14,13 +34,6 @@ $ cd biz-away-be-test
 # install dependencies
 $ npm i
 ```
-
-## What's inside?
-
-The project meets the requirements + the Bonus assignment, plus a series other small additions. The complete list is:
-
-- an API that allows to search a trip from an origin to a destination and define a sort_by strategy
--
 
 ## Local project run
 
@@ -88,14 +101,58 @@ You can easily do this, and interact with all the other endpoints through the Sw
 http://localhost:3000/swagger
 ```
 
+## Swagger
+
+The project has support for swagger. You can interact with every endpoint from the swagger UI and read the documentation, DTOs properties etc. The swagger UI is reachable at this address:
+
+```
+http://localhost:3000/swagger
+```
+
+Also, you can get the JSON OpenApi spec by calling:
+
+```
+http://localhost:3000/swagger-json
+```
+
+Useful if you want to use a client side library for automatically generating the http clients for calling the API like `ng-openapi-gen`
+
 ## Docker project run
+
+To run the project with docker you can use docker compose. It will also spawn a mongodb service (without persistence volume). To do so, execute this command:
+
+```sh
+$ docker compose up
+```
+
+By default the database is configured like so:
+
+```
+Host port: 27017
+Root username: root
+Root password: root
+```
+
+Apart from the above values, the other configuration variables mentioned in the **Local project run** section are used by default.
+You can change these values by editing the `docker-compose.yaml` file.
+
+#### Note:
+
+when running the project with docker, please set the correct host in the connection db string, which is the name of the mongo service in the `docker-compose.yaml` file. By default: `mongo`.
+
+The connection string by default will then be:
+
+`mongodb://root:root@mongo:27017`
+
+If you don't do this, the app container won't be able to connect to the database.
+
+Also note that the first run might throw a couple of database connections failures until the mongodb service won't be up and running. Don't worry, since Nest will try to connect to the db several times. And the connection will be eventually established.
 
 ## Run tests
 
-For simplicity sake only unit tests for the `trip-planner.service` has been implemented.
+For simplicity sake only unit tests for the `trip-planner.service` and `trip-manager.service` has been implemented.
 These tests mock any external dependency (remote api service, repositories, etc) and will assert the following conditions:
 
-- should be defined
 - should sort trips by: fastest
 - should sort trips by: cheapest
 - should fetch and sort trips by: cheapest
@@ -110,3 +167,15 @@ These tests mock any external dependency (remote api service, repositories, etc)
 ```bash
 $ npm run test
 ```
+
+## Other potential improvements
+
+For simplicity sake, a set of potential improvements and optimizations haven't been made. Some of these includes:
+
+- a caching layer for caching, like redis. For caching requests combining origin and destination. Reducing remote api calls and improve responses time for frequently requested trips.
+- a better authentication and users management systems could have been used. For example an integration with Firebase's authentication system and users management.
+- a pagination system for the returned list results of the users's saved trips
+- an additional "saved trip detail" endpoint that given a user saved trip id would return the full trip data. Which enables the saved trips schema to save just basic info about the remote api trip to present through a listing endpoint, and return the full saved trip structure only from the "detail" endpoint. Unfortunately I couldn't find a way to query the remote API with just a trip `uid` in return for the full trip object.
+- better test coverage both for controllers (unit) and e2e testing
+- a health status endpoint could have been implemented for cloud systems health checks
+- a more production oriented logger integration with external systems, for centralized logs, monitoring, query etc could have been used

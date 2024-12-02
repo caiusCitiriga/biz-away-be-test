@@ -1,3 +1,4 @@
+import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -6,12 +7,10 @@ import { ENVConfig } from '@core';
 
 import { AppModule } from './app.module';
 
-setTimeout(() => {
-  console.log(ENVConfig.dbUrl);
-}, 1000);
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(helmet());
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());

@@ -39,6 +39,7 @@ export class AuthService {
   private async checkTestUserPresence() {
     const user = await this.usersRepo.getByUsername(ENVConfig.testUsername);
     if (!user) await this.seedTestUser();
+    else this.logger.debug(`Found existing test user. Skipping seeding`);
   }
 
   private async seedTestUser() {
